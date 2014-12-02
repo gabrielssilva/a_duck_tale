@@ -1,4 +1,5 @@
-a_duck_tale
+A Duck Tale
 ===========
 
-A simple side-scrolling game using Processing
+A simple Side-Scrolling game using Processing.
+The game is my final Project for a Computational Art Game!
