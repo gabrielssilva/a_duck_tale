@@ -1,12 +1,13 @@
 abstract class Level {
   PVector parallax1Vel, parallax2Vel, parallax3Vel, enemiesVel;
   ArrayList<Enemy> enemies;
+  PSys sparks;
+  
   color backgroundColor;
   float enemyCounter, maxEnemyCounter;
   float levelCounter, levelDuration;
   int frameRate;
-
-  boolean playerActive, beginning, running, ending, done;
+  boolean playerActive, beginning, running, ending, gameOver, done;
 
   Parallax parallax;
   Duck duck;
@@ -28,6 +29,7 @@ abstract class Level {
     running = false;
     ending = false;
     done = false;
+    gameOver = false;
   }
 
   void draw() {
@@ -41,6 +43,12 @@ abstract class Level {
       drawLevel();
     } else if (ending) {
       endLevel();
+    } else if (gameOver) {
+      doGameOver();
+    }
+    
+    if (sparks != null) {
+      
     }
   }
 
@@ -85,6 +93,14 @@ abstract class Level {
       duck.reset(new PVector(-120, 250));
     }
   }
+  
+  void doGameOver() {
+    duck.update();
+    drawEnemies();
+    parallax.update();
+    
+    sparks.run();
+  }
 
   void updatePlayerDirection(PVector focusPoint) {
     if (isPlayerActive()) {
@@ -119,6 +135,11 @@ abstract class Level {
     for (Enemy enemy : enemies) {
       if (duck.isColliding(enemy)) {
         playerActive = false;
+        gameOver = true;
+        running = false;
+        
+        PVector sparksPosition = new PVector(duck.position.x+100, duck.position.y);
+        sparks = new PSys(sparksPosition);
         duck.die();
       }
     }

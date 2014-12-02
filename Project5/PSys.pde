@@ -4,11 +4,10 @@ class PSys {
   
   PSys(PVector source) {
     particles = new ArrayList();
-    int numOfParticles = random(8, 12);
+    float numOfParticles = random(15, 20);
     
     for (int i=0; i<numOfParticles; i++) {
-      PVector velocity = new PVector(random(-1, 1), random(-1, 1));
-      particles.add(new Particle(source, velocity));
+      particles.add(new Particle(source));
     }
   }
 
@@ -33,80 +32,50 @@ class PSys {
 
 class Particle {
 
-  PVector loc[], vel, accel;
-  float r, life, initialLife, groundY;
-  color pcolor;
+  PImage sourceImg;
+  PVector start, position, direction, acceleration;
+  float maxSize, life, angle, initialLife;
 
-  Particle(PVector start) {
-    color particleColor = color(random(255), random(255), random(255));
-    PVector vel = new PVector(random(-1, 1), random(-1, 1));
+  Particle(PVector startPosition) {
+    start = startPosition.get();
+    position = startPosition.get();
+    sourceImg = loadImage("data/spark.png");
+    direction = new PVector(random(-1, 1), random(-1, 1));
+    acceleration = new PVector(0.05, 0.01);
     
-    genericConstructor(start, vel, particleColor);
-    
-    r = random(10, 15);
-  }
-
-  Particle(PVector start, PVector v, color particleColor, float radius) {
-    genericConstructor(start, v, particleColor);
-    
-    groundY = random(height-200, height-50);
-    r = random(radius-radius/3, radius);
-  }
-
-  void genericConstructor(PVector start, PVector v, color particleColor) {
-    accel = new PVector(0, 0.05);
-    vel = v;
-    loc = new PVector[3];
-    loc[0] = start.get();
-    
-    pcolor = particleColor;
-    life = random(150, 180);
+    life = random(30, 60);
     initialLife = life;
-    
-    loc[1] = new PVector();
-    loc[2] = new PVector();
+    maxSize = random(0.3, 1);
   }
 
   void run() {
-    updateP();
-    renderP();
-    updateP();
-    renderP();
+    update();
+    draw();
   }
 
-  void updateP() {
-    vel.add(accel); 
-    loc[0].add(vel);
+  void update() {
+    direction.add(acceleration);
+    angle = PVector.angleBetween(direction, position);
+    position.add(direction); 
     life -= 1.0;
     
-    loc[1].x = loc[0].x + 2*vel.x;
-    loc[1].y = loc[0].y + 2*vel.y;
-    loc[2].x = loc[1].x + 2*vel.x;
-    loc[2].y = loc[1].y + 2*vel.y;
     
-    if(loc[0].y > groundY) {
-      pcolor = lerpColor(color(#F92200), color(#C01A00), random(0.5, 1));
-    }
   }
 
-  void renderP() {
-    float alpha = map(life, 0, initialLife, 0, 100);
-    float radius = map(life, 0, initialLife, r/3, r); 
+  void draw() {
+    pushMatrix();
+    translate(position.x, position.y);
+    rotate(-angle);
     
-    noStroke();
-    fill(pcolor, alpha);
-    for(int i=0; i<3; i++) {
-      ellipse(loc[i].x, loc[i].y, radius, radius);
-    }
+    float size = map(life, 0, initialLife, 0, maxSize);
+    scale(size);
+    
+    image(sourceImg, 0, 0);
+    popMatrix();
   }
 
-  // a function to test if a particle is alive
   boolean alive() {
-    if (life <= 0.0) {
-      return false;
-    } else {
-      return true;
-    }
+    return life > 0.0;
   }
 }
 
