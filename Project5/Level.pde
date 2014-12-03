@@ -1,13 +1,14 @@
 abstract class Level {
+
   PVector parallax1Vel, parallax2Vel, parallax3Vel, enemiesVel;
   ArrayList<Enemy> enemies;
   PSys sparks;
-  
+  LevelStatus status;
+
   color backgroundColor;
   float enemyCounter, maxEnemyCounter;
   float levelCounter, levelDuration;
   int frameRate;
-  boolean playerActive, beginning, running, ending, gameOver, done;
 
   Parallax parallax;
   Duck duck;
@@ -16,7 +17,6 @@ abstract class Level {
     duck = player;
     frameRate = gameFrameRate;
     enemies = new ArrayList();
-    playerActive = false;
     enemyCounter = 0;
     levelCounter = 0;
 
@@ -25,11 +25,7 @@ abstract class Level {
     setLevelSettings();
 
     parallax = new Parallax(levelName, parallax1Vel, parallax2Vel, parallax3Vel);
-    beginning = false;
-    running = false;
-    ending = false;
-    done = false;
-    gameOver = false;
+    status = LevelStatus.BEGINNING;
   }
 
   void draw() {
@@ -37,18 +33,14 @@ abstract class Level {
     parallax.draw();
     duck.draw();
 
-    if (beginning) {
+    if (status == LevelStatus.BEGINNING) {
       beginLevel();
-    } else if (running) {
-      drawLevel();
-    } else if (ending) {
+    } else if (status == LevelStatus.RUNNING) {
+      doRunning();
+    } else if (status == LevelStatus.ENDING) {
       endLevel();
-    } else if (gameOver) {
+    } else if (status == LevelStatus.GAME_OVER) {
       doGameOver();
-    }
-    
-    if (sparks != null) {
-      
     }
   }
 
@@ -58,13 +50,11 @@ abstract class Level {
 
     if (duck.position.x > 30) {
       duck.setDirection(new PVector(0, 0));
-      playerActive = true;
-      beginning = false;
-      running = true;
+      status = LevelStatus.RUNNING;
     }
   }
 
-  void drawLevel() {
+  void doRunning() {
     duck.update();
     parallax.update();
     drawEnemies();
@@ -74,9 +64,7 @@ abstract class Level {
     levelCounter += 1.0/FRAME_RATE;
 
     if (isLevelFinished() && enemies.isEmpty()) {
-      playerActive = false;
-      running = false;
-      ending = true;
+      status = LevelStatus.ENDING;
     } else {
       checkCollisions();
     }
@@ -88,22 +76,25 @@ abstract class Level {
     duck.update();
 
     if (duck.position.x > width+120) {
-      ending = false;
-      done = true;
+      status = LevelStatus.WON;
       duck.reset(new PVector(-120, 250));
     }
   }
-  
+
   void doGameOver() {
     duck.update();
     drawEnemies();
     parallax.update();
-    
+
     sparks.run();
+    
+    if (enemies.isEmpty()) {
+      status = LevelStatus.LOST;
+    }
   }
 
   void updatePlayerDirection(PVector focusPoint) {
-    if (isPlayerActive()) {
+    if (status == LevelStatus.RUNNING) {
       duck.updateDirection(focusPoint);
     }
   }
@@ -134,10 +125,8 @@ abstract class Level {
   void checkCollisions() {
     for (Enemy enemy : enemies) {
       if (duck.isColliding(enemy)) {
-        playerActive = false;
-        gameOver = true;
-        running = false;
-        
+        status = LevelStatus.GAME_OVER;
+
         PVector sparksPosition = new PVector(duck.position.x+100, duck.position.y);
         sparks = new PSys(sparksPosition);
         duck.die();
@@ -145,17 +134,13 @@ abstract class Level {
     }
   }
 
-  boolean isPlayerActive() {
-    return playerActive;
-  }
-
   void begin() {
     duck.setDirection(new PVector(5, 0));
-    beginning = true;
+    status = LevelStatus.BEGINNING;
   }
 
-  boolean isDone() {
-    return done;
+  LevelStatus getStatus() {
+    return status;
   }
 
   abstract void setParallaxSettings();

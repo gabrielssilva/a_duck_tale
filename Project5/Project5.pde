@@ -4,10 +4,11 @@ final int NUM_OF_LEVELS = 2;
 final float DELAY_TIME = 0.8;
 
 Level levels[];
+EngineStatus status, lastValidStatus;
+FadeStatus fadeStatus;
 int activeLevel, fadeAlpha;
 float currentTime;
 PVector focusPoint;
-boolean fadingIn, fadingOut, menu, running, delaying;
 
 void setup() {
   size(1200, 500);
@@ -23,24 +24,19 @@ void setup() {
 
   currentTime = 0;
   fadeAlpha = 0;
-
-  menu = true;
-  fadingIn = false;
-  fadingOut = false;
-  running = false;
-  delaying = false;
+  status = EngineStatus.ON_MENU;
+  fadeStatus = FadeStatus.NONE;
 }
 
 void draw() {
   currentTime += 1.0/FRAME_RATE;
 
-  if (menu && !delaying) {
+  if (status == EngineStatus.ON_MENU) {
     drawMenu();
-  } else if (activeLevel < NUM_OF_LEVELS && !delaying) {
+  } else if (status == EngineStatus.RUNNING) {
     levels[activeLevel].draw();
 
-    if (levels[activeLevel].isDone()) {      
-      activeLevel++;
+    if (levels[activeLevel].getStatus() == LevelStatus.WON) {      
       nextLevel();
     }
   }
@@ -50,9 +46,9 @@ void draw() {
 }
 
 void fade() {
-  if (fadingIn) {
+  if (fadeStatus == FadeStatus.FADING_IN) {
     fadeIn();
-  } else if (fadingOut) {
+  } else if (fadeStatus == FadeStatus.FADING_OUT) {
     fadeOut();
   }
 
@@ -65,8 +61,7 @@ void fadeIn() {
   if (fadeAlpha < 255) {
     fadeAlpha += 5;
   } else {
-    fadingIn = false;
-    fadingOut = true;
+    fadeStatus = FadeStatus.FADING_OUT;
   }
 }
 
@@ -74,23 +69,24 @@ void fadeOut() {
   if (fadeAlpha > 0) {
     fadeAlpha += -5;
   } else {
-    fadingOut = false;
+    fadeStatus = FadeStatus.NONE;
   }
 }
 
 void delay() {
-  if (delaying && (currentTime>DELAY_TIME)) {
-    delaying = false;
+  if ((status == EngineStatus.DELAYING) && (currentTime>DELAY_TIME)) {
+    status = lastValidStatus;
   }
 }
 
 void nextLevel() {
+  activeLevel++;
+  
   if (activeLevel < NUM_OF_LEVELS) {
     levels[activeLevel].begin();
-
-    activateFade();
+    activateFade(EngineStatus.RUNNING);
   } else {
-    running = false;
+    status = EngineStatus.ENDING;
   }
 }
 
@@ -110,27 +106,27 @@ void drawMenu() {
 
 void mouseMoved() {
   // Just change Y coordinate, keep the duck on the same X! 
-  if (running) {
+  if (status == EngineStatus.RUNNING) {
     focusPoint.y = mouseY;
     levels[activeLevel].updatePlayerDirection(focusPoint);
   }
 }
 
 void mouseClicked() {
-  if (menu) {
+  if (status == EngineStatus.ON_MENU) {
     if (mouseX>0.65*width && mouseX<0.95*width && mouseY>0.3*height && mouseY<0.48*height) {
-      menu = false;
-      running = true;
       levels[activeLevel].begin();
 
-      activateFade();
+      activateFade(EngineStatus.RUNNING);
     }
   }
 }
 
-void activateFade() {
-  fadingIn = true;
-  delaying = true;
+void activateFade(EngineStatus nextStatus) {
+  fadeStatus = FadeStatus.FADING_IN;
+  status = EngineStatus.DELAYING;
+  lastValidStatus = nextStatus;
+  
   currentTime = 0;
 }
 

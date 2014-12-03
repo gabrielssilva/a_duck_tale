@@ -70,6 +70,7 @@ class Particle {
     float size = map(life, 0, initialLife, 0, maxSize);
     scale(size);
     
+    
     image(sourceImg, 0, 0);
     popMatrix();
   }
