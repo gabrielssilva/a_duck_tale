@@ -12,7 +12,7 @@ enum EngineStatus {
   RUNNING,
   ENDING,
   DELAYING,
-  GAME_OVER
+  ON_GAME_OVER
 };
 
 enum FadeStatus {

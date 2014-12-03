@@ -2,7 +2,8 @@ abstract class Level {
 
   PVector parallax1Vel, parallax2Vel, parallax3Vel, enemiesVel;
   ArrayList<Enemy> enemies;
-  PSys sparks;
+  SparkPsys sparks;
+  Enviroment enviroment;
   LevelStatus status;
 
   color backgroundColor;
@@ -22,6 +23,7 @@ abstract class Level {
     setParallaxSettings();
     setEnemySettings();
     setLevelSettings();
+    enviroment = setEnviroment();
 
     parallax = new Parallax(levelName, parallax1Vel, parallax2Vel, parallax3Vel);
     status = LevelStatus.BEGINNING;
@@ -40,6 +42,10 @@ abstract class Level {
       endLevel();
     } else if (status == LevelStatus.GAME_OVER) {
       doGameOver();
+    }
+    
+    if (enviroment != null) {
+      enviroment.run();
     }
   }
 
@@ -126,7 +132,7 @@ abstract class Level {
         status = LevelStatus.GAME_OVER;
 
         PVector sparksPosition = new PVector(duck.position.x+100, duck.position.y);
-        sparks = new PSys(sparksPosition);
+        sparks = new SparkPsys(sparksPosition);
         duck.die();
       }
     }
@@ -148,5 +154,6 @@ abstract class Level {
   abstract void setParallaxSettings();
   abstract void setEnemySettings();
   abstract void setLevelSettings();
+  abstract Enviroment setEnviroment();
 }
 

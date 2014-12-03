@@ -19,6 +19,11 @@ class Level1 extends Level {
     backgroundColor = color(#7ECDDF);
     levelDuration = 10;
   }
+  
+  Enviroment setEnviroment() {
+    Enviroment enviroment = new Enviroment("spark");
+    return enviroment;
+  }
 }
 
 // Level 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -43,6 +48,11 @@ class Level2 extends Level {
   void setLevelSettings() {
     backgroundColor = color(#7ECDDF);
     levelDuration = 10;
+  }
+  
+  Enviroment setEnviroment() {
+    //enviroment = new Enviroment(color(0));
+    return null;
   }
 }
 
