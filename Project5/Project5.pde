@@ -32,17 +32,94 @@ void draw() {
   currentTime += 1.0/FRAME_RATE;
 
   if (status == EngineStatus.ON_MENU) {
-    drawMenu();
+    drawMenuScreen();
   } else if (status == EngineStatus.RUNNING) {
-    levels[activeLevel].draw();
-
-    if (levels[activeLevel].getStatus() == LevelStatus.WON) {      
-      nextLevel();
-    }
+    runLevel();
+  } else if (status == EngineStatus.ON_GAME_OVER) {
+    drawGameOverScreen();
   }
 
   delay();
   fade();
+}
+
+void runLevel() {
+  noCursor();
+  levels[activeLevel].draw();
+
+  if (levels[activeLevel].getStatus() == LevelStatus.WON) {      
+    nextLevel();
+  } else if (levels[activeLevel].getStatus() == LevelStatus.LOST) {
+    activateFade(EngineStatus.ON_GAME_OVER);
+  }
+}
+
+void nextLevel() {
+  activeLevel++;
+
+  if (activeLevel < NUM_OF_LEVELS) {
+    levels[activeLevel].begin();
+    activateFade(EngineStatus.RUNNING);
+  } else {
+    status = EngineStatus.ENDING;
+  }
+}
+
+void drawMenuScreen() {
+  background(0);
+  cursor();
+
+  fill(255);
+  rect(0.65*width, 0.3*height, 0.3*width, 0.2*height);
+  //rect(0.65*width, 0.6*height, 0.3*width, 0.2*height);
+
+  fill(0);
+  textFont(loadFont("Helvetica.vlw"), 60);
+  textAlign(CENTER, CENTER);
+  text("Play", 0.65*width, 0.3*height, 0.3*width, 0.18*height);
+}
+
+void drawGameOverScreen() {
+  textFont(loadFont("Helvetica.vlw"), 60);
+  textAlign(CENTER, CENTER);
+  
+  background(0);
+  cursor();
+  
+  fill(255);
+  rect(0.35*width, 0.7*height, 0.3*width, 0.2*height);
+  textSize(90);
+  text("Game Over", 0.3*width, 0.2*height, 0.4*width, 0.3*height);
+  
+  
+  fill(0);
+  textSize(60);
+  text("Try Again", 0.35*width, 0.7*height, 0.3*width, 0.18*height);
+}
+
+void mouseMoved() {
+  // Just change Y coordinate, keep the duck on the same X! 
+  if (status == EngineStatus.RUNNING) {
+    focusPoint.y = mouseY;
+    levels[activeLevel].updatePlayerDirection(focusPoint);
+  }
+}
+
+void mouseClicked() {
+  if (status == EngineStatus.ON_MENU) {
+    if (mouseX>0.65*width && mouseX<0.95*width && mouseY>0.3*height && mouseY<0.48*height) {
+      levels[activeLevel].begin();
+
+      activateFade(EngineStatus.RUNNING);
+    }
+  } else if (status == EngineStatus.ON_GAME_OVER) {
+    if (mouseX>0.35*width && mouseX<0.65*width && mouseY>0.7*height && mouseY<0.88*height) {
+      activeLevel= 0;
+      levels[activeLevel].begin();
+
+      activateFade(EngineStatus.RUNNING);
+    }
+  }
 }
 
 void fade() {
@@ -79,54 +156,11 @@ void delay() {
   }
 }
 
-void nextLevel() {
-  activeLevel++;
-  
-  if (activeLevel < NUM_OF_LEVELS) {
-    levels[activeLevel].begin();
-    activateFade(EngineStatus.RUNNING);
-  } else {
-    status = EngineStatus.ENDING;
-  }
-}
-
-void drawMenu() {
-  background(0);
-  cursor();
-
-  fill(255);
-  rect(0.65*width, 0.3*height, 0.3*width, 0.2*height);
-  //rect(0.65*width, 0.6*height, 0.3*width, 0.2*height);
-
-  fill(0);
-  textFont(loadFont("Helvetica.vlw"), 60);
-  textAlign(CENTER, CENTER);
-  text("Play", 0.65*width, 0.3*height, 0.3*width, 0.18*height);
-}
-
-void mouseMoved() {
-  // Just change Y coordinate, keep the duck on the same X! 
-  if (status == EngineStatus.RUNNING) {
-    focusPoint.y = mouseY;
-    levels[activeLevel].updatePlayerDirection(focusPoint);
-  }
-}
-
-void mouseClicked() {
-  if (status == EngineStatus.ON_MENU) {
-    if (mouseX>0.65*width && mouseX<0.95*width && mouseY>0.3*height && mouseY<0.48*height) {
-      levels[activeLevel].begin();
-
-      activateFade(EngineStatus.RUNNING);
-    }
-  }
-}
-
 void activateFade(EngineStatus nextStatus) {
   fadeStatus = FadeStatus.FADING_IN;
   status = EngineStatus.DELAYING;
   lastValidStatus = nextStatus;
-  
+
   currentTime = 0;
 }
 

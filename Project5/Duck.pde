@@ -114,6 +114,9 @@ class Duck {
   }
   
   void reset(PVector newPosition) {
+    this.rotation = 0;
+    this.dead = false;
+    
     this.position = newPosition.get();
     this.direction = new PVector(0, 0);
   }

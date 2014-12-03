@@ -18,7 +18,6 @@ abstract class Level {
     frameRate = gameFrameRate;
     enemies = new ArrayList();
     enemyCounter = 0;
-    levelCounter = 0;
 
     setParallaxSettings();
     setEnemySettings();
@@ -77,7 +76,6 @@ abstract class Level {
 
     if (duck.position.x > width+120) {
       status = LevelStatus.WON;
-      duck.reset(new PVector(-120, 250));
     }
   }
 
@@ -135,8 +133,12 @@ abstract class Level {
   }
 
   void begin() {
-    duck.setDirection(new PVector(5, 0));
+    // Dont reset the level counter if the player can retry from where he lost
+    levelCounter = 0;
     status = LevelStatus.BEGINNING;
+    
+    duck.reset(new PVector(-120, 250));
+    duck.setDirection(new PVector(5, 0));
   }
 
   LevelStatus getStatus() {
