@@ -47,6 +47,10 @@ abstract class Level {
     if (enviroment != null) {
       enviroment.run();
     }
+    
+    if (sparks != null) {
+      sparks.run();
+    }
   }
 
   void beginLevel() {
@@ -90,7 +94,7 @@ abstract class Level {
     drawEnemies();
     parallax.update();
 
-    sparks.run();
+    //sparks.run();
     
     if (enemies.isEmpty()) {
       status = LevelStatus.LOST;
@@ -115,13 +119,14 @@ abstract class Level {
 
   void generateEnemies() {
     if (!isLevelFinished() && (enemyCounter > maxEnemyCounter)) {
-      Enemy newEnemy = new Enemy(enemiesVel, 1);
-      enemies.add(newEnemy);
+      addEnemies(enemies);
 
       enemyCounter = 0;
     }
   }
-
+  
+  abstract void addEnemies(ArrayList<Enemy> enemies);
+  
   boolean isLevelFinished() {
     return levelCounter > levelDuration;
   }
@@ -129,11 +134,8 @@ abstract class Level {
   void checkCollisions() {
     for (Enemy enemy : enemies) {
       if (duck.isColliding(enemy)) {
-        status = LevelStatus.GAME_OVER;
-
-        PVector sparksPosition = new PVector(duck.position.x+100, duck.position.y);
-        sparks = new SparkPsys(sparksPosition);
-        duck.die();
+        enemy.handleCollision(this);
+        
       }
     }
   }
@@ -150,10 +152,23 @@ abstract class Level {
   LevelStatus getStatus() {
     return status;
   }
+  
+  void killPlayer() {
+    status = LevelStatus.GAME_OVER;
+
+    PVector sparksPosition = new PVector(duck.position.x+100, duck.position.y);
+    sparks = new SparkPsys(sparksPosition, "spark");
+    duck.die();
+  }
+  
+  void freezesPlayer() {
+    PVector sparksPosition = new PVector(duck.position.x+100, duck.position.y);
+    sparks = new SparkPsys(sparksPosition, "level2/snow_flake");
+    duck.freeze();
+  }
 
   abstract void setParallaxSettings();
   abstract void setEnemySettings();
   abstract void setLevelSettings();
   abstract Enviroment setEnviroment();
 }
-

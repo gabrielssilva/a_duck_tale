@@ -4,7 +4,7 @@ abstract class PSys {
   ArrayList<Particle> particles;
   float particleDelay, counter;
   
-  PSys(PVector source, float initialParticles, float interval) {
+  PSys(PVector source, float initialParticles, float interval, String name) {
     position = source.get();
     particles = new ArrayList();
     
@@ -12,7 +12,7 @@ abstract class PSys {
     particleDelay = interval;
     
     for (int i=0; i<initialParticles; i++) {
-      addParticle(particles, source);
+      addParticle(particles, source, name);
     }
   }
 
@@ -42,19 +42,19 @@ abstract class PSys {
     return particles.isEmpty();
   }
   
-  abstract void addParticle(ArrayList<Particle> particle, PVector sysPosition);
+  abstract void addParticle(ArrayList<Particle> particle, PVector sysPosition, String name);
   abstract void updateSys(ArrayList<Particle> particle, PVector sysPosition);
 }
 
 // Spark and Envieroment PSys - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class SparkPsys extends PSys {
-  SparkPsys(PVector source) {
-    super(source, random(15, 20), 0);
+  SparkPsys(PVector source, String pName) {
+    super(source, random(15, 20), 0, pName);
   }
   
-  void addParticle(ArrayList<Particle> particles, PVector sysPosition) {
-    particles.add(new SparkParticle(sysPosition));
+  void addParticle(ArrayList<Particle> particles, PVector sysPosition, String name) {
+    particles.add(new SparkParticle(sysPosition, name));
   }
   
   void updateSys(ArrayList<Particle> particles, PVector sysPosition) {
@@ -67,20 +67,20 @@ class Enviroment extends PSys {
   String particleName;
   
   Enviroment(String pName) {
-    super(new PVector(width/2, 0), 0, 0.1);
+    super(new PVector(width/2, 0), 0, 0.1, pName);
     particleName = pName;
   }
   
-  void addParticle(ArrayList<Particle> particles, PVector sysPosition) {
+  void addParticle(ArrayList<Particle> particles, PVector sysPosition, String name) {
     PVector particle1Position = new PVector(random(0, width/2), -0.1*width);
-    PVector particle2Position = new PVector(random(width/2, width), -0.1*width);
+    PVector particle2Position = new PVector(random(width/2, 1.2*width), -0.1*width);
     
-    particles.add(new EnviromentParticle(particle1Position, particleName));
-    particles.add(new EnviromentParticle(particle2Position, particleName));
+    particles.add(new EnviromentParticle(particle1Position, name));
+    particles.add(new EnviromentParticle(particle2Position, name));
   }
   
   void updateSys(ArrayList<Particle> particles, PVector sysPosition) {
-    addParticle(particles, sysPosition);
+    addParticle(particles, sysPosition, particleName);
   }
 }
 
@@ -142,8 +142,8 @@ abstract class Particle {
 // Specific particles to Sparks and Enviroments - - - - - - - - - - - - - - - - - - - - -
 
 class SparkParticle extends Particle {
-  SparkParticle(PVector position) {
-    super(position, "spark", random(40, 60), random(0.3, 1));
+  SparkParticle(PVector position, String name) {
+    super(position, name, random(40, 60), random(0.3, 1));
   }
   
   PVector setDirection() {
@@ -165,11 +165,11 @@ class EnviromentParticle extends Particle {
   }
   
   PVector setDirection() {
-    return new PVector(0, random(0, 1));
+    return new PVector(0, 0.5);
   }
   
   PVector setAcceleration() {
-    return new PVector(-0.05, 1);
+    return new PVector(-0.1, 0.2);
   }
   
   float setAngle(PVector position, PVector direction) {

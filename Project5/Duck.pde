@@ -2,8 +2,8 @@ class Duck {
 
   PImage sourceImg;
   PVector position, direction;
-  float size, speed, rotation;
-  boolean dead;
+  float size, initSpeed, speed, rotation;
+  boolean dead, frozen;
   BoundingBox boundingBox;
 
   DuckLeg frontLeg, backLeg;
@@ -12,9 +12,9 @@ class Duck {
 
   Duck(float x, float y, float duckSize, float duckSpeed) {
     size = duckSize;
-    speed = duckSpeed;
+    initSpeed = speed = duckSpeed;
     rotation = 0;
-    dead = false;
+    frozen = dead = false;
 
     sourceImg = loadImage("data/duck/body.png");
     position = new PVector(x-size*sourceImg.width/1.25, y-size*sourceImg.height/2);
@@ -70,6 +70,12 @@ class Duck {
     if(dead) {
       rotation += 0.03;
     }
+    
+    if (speed < initSpeed) {
+      speed += 0.02;
+    } else {
+      frozen = false;
+    }
   }
 
   void updateParts() {
@@ -105,6 +111,13 @@ class Duck {
   void die() {
     setDirection(new PVector(2*speed, 3*speed));
     dead = true;
+  }
+  
+  void freeze() {
+    if(!frozen) {
+      frozen = true;
+      speed = 0;
+    }
   }
   
   void flyAway() {

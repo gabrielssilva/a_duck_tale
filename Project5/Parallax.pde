@@ -107,7 +107,7 @@ class ParallaxComponent {
   }
   
   void generatePosition(int numberOfComponents) {
-    position.x += (numberOfComponents)*sourceImg.width - 5;
+    position.x += (numberOfComponents)*sourceImg.width - 10;
   }
 }
 
