@@ -21,7 +21,7 @@ void setup() {
   levels[0] = new Level1(duck, FRAME_RATE);
   levels[1] = new Level2(duck, FRAME_RATE);
   levels[2] = new Level3(duck, FRAME_RATE);
-  activeLevel = 1;
+  activeLevel = 0;
 
   currentTime = 0;
   fadeAlpha = 0;
