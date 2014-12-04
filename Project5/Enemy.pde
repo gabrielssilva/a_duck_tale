@@ -25,11 +25,11 @@ abstract class Enemy {
 
   void generatePosition() {
     float x = width + sourceImg.width;
-    float y = random(sourceImg.height, 0.6*height);
+    float y = random(0, 0.6*height);
 
     position = new PVector(x, y);
   }
-  
+
   void setBoundingBox(float size, PImage sourceImage) {
     boundingBox = new BoundingBox(position.x, position.y, size*(sourceImg.width-18), size*(sourceImg.height-8));
   }
@@ -41,28 +41,28 @@ abstract class Enemy {
 
 class DarkCloud extends Enemy {
   Lightning lightning1, lightning2;
-  
+
   DarkCloud(PVector enemyVel, float enemySize) {
     super(enemyVel);
     size = enemySize;
-    
+
     int imageID = round(random(1, 2));
     sourceImg = loadImage("data/enemy/enemy"+imageID+".png");
-    
+
     generatePosition();
     setBoundingBox(size, sourceImg);
-    
+
     lightning1 = new Lightning(position.x+10, position.y+10, 1, true);
     lightning2 = new Lightning(position.x+70, position.y+10, 2, false);
   }
-  
+
   void draw() {
     if (DEBUG_BOUNDING_BOXES) {
       noFill();
       stroke(0);
       rect(boundingBox.x, boundingBox.y, boundingBox.dX, boundingBox.dY);
     }    
-    
+
     pushMatrix();
     scale(size);
 
@@ -70,10 +70,10 @@ class DarkCloud extends Enemy {
     lightning2.draw(position.x+63, position.y+15);
     image(sourceImg, position.x, position.y);
     popMatrix();
-    
+
     update();
   }
-  
+
   void handleCollision(Level level) {
     level.killPlayer();
   }
@@ -81,39 +81,96 @@ class DarkCloud extends Enemy {
 
 class SnowFlake extends Enemy {
   float angle;
-  
+
   SnowFlake(PVector enemyVel, float enemySize) {
     super(enemyVel);
     size = enemySize;
     angle = 0;
-    
+
     sourceImg = loadImage("data/enemy/snow_flake.png");
-    
+
     generatePosition();
     setBoundingBox(size, sourceImg);
   }
-  
+
   void draw() {
     if (DEBUG_BOUNDING_BOXES) {
       noFill();
       stroke(0);
       rect(boundingBox.x, boundingBox.y, boundingBox.dX, boundingBox.dY);
     }    
-    
+
     pushMatrix();
     translate(position.x+sourceImg.width/2, position.y+sourceImg.height/2);
     rotate(angle);
     scale(size);
     image(sourceImg, -sourceImg.width/2, -sourceImg.height/2);
     popMatrix();
-    
+
     angle += PI/32;
     update();
   }
-  
+
   void handleCollision(Level level) {
     level.freezesPlayer();
     alive = false;
+  }
+}
+
+
+class Tornado extends Enemy {
+  float stateCounter;
+  int tornadoState, stateDirection;
+
+  Tornado(PVector enemyVel, float enemySize) {
+    super(enemyVel);
+    size = enemySize;
+
+    tornadoState = 1;
+    stateDirection = 1;
+    stateCounter = 0;
+    sourceImg = getImage();
+    
+    generatePosition();
+    setBoundingBox(size, sourceImg);
+  }
+
+  void draw() {
+    stateCounter += 1.0/frameRate;
+    
+    if (stateCounter > 0.2) {
+      sourceImg = getImage();
+      stateCounter = 0; 
+    }
+
+    if (DEBUG_BOUNDING_BOXES) {
+      noFill();
+      stroke(0);
+      rect(boundingBox.x, boundingBox.y, boundingBox.dX, boundingBox.dY);
+    }    
+
+    pushMatrix();
+    scale(size);
+    image(sourceImg, position.x, position.y);
+    popMatrix();
+
+    update();
+  }
+
+  void handleCollision(Level level) {
+    level.killPlayer();
+  }
+
+  PImage getImage() {
+    tornadoState += stateDirection;
+    
+    if (tornadoState == 1) {
+      stateDirection = 1;
+    } else if (tornadoState == 3) {
+      stateDirection = -1;
+    }
+    
+    return loadImage("data/enemy/tornado"+tornadoState+".png");
   }
 }
 

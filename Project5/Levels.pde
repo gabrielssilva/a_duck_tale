@@ -81,7 +81,7 @@ class Level3 extends Level {
 
   void setEnemySettings() {
     enemiesVel = new PVector(-8, 0);
-    maxEnemyCounter = 1;
+    maxEnemyCounter = 3;
   }
 
   void setParallaxSettings() {
@@ -100,7 +100,7 @@ class Level3 extends Level {
   }
 
   void addEnemies(ArrayList<Enemy> enemies) {
-    enemies.add(new DarkCloud(enemiesVel, 1));
+    enemies.add(new Tornado(enemiesVel, 1));
   }
 }
 
