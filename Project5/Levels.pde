@@ -52,12 +52,12 @@ class Level2 extends Level {
   }
 
   void setLevelSettings() {
-    backgroundColor = color(#7ECDDF);
+    backgroundColor = color(#3491A7);
     levelDuration = 10;
   }
 
   Enviroment setEnviroment() {
-    return new Enviroment("level2/snow_flake");
+    return new Enviroment("level2/snow_flake", 0.1);
   }
 
   void addEnemies(ArrayList<Enemy> enemies) {
@@ -70,4 +70,38 @@ class Level2 extends Level {
     enemiesAdded++;
   }
 }
+
+// Level 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class Level3 extends Level {
+
+  Level3(Duck duck, int gameFrameRate) {
+    super(duck, gameFrameRate, "level3");
+  }
+
+  void setEnemySettings() {
+    enemiesVel = new PVector(-8, 0);
+    maxEnemyCounter = 1;
+  }
+
+  void setParallaxSettings() {
+    parallax1Vel = new PVector(-2, 0);
+    parallax2Vel = new PVector(-4, 0);
+    parallax3Vel = new PVector(-6, 0);
+  }
+
+  void setLevelSettings() {
+    backgroundColor = color(#53C7BB);
+    levelDuration = 10;
+  }
+
+  Enviroment setEnviroment() {
+    return new Enviroment("level3/rain_drop", 0.01);
+  }
+
+  void addEnemies(ArrayList<Enemy> enemies) {
+    enemies.add(new DarkCloud(enemiesVel, 1));
+  }
+}
+
 

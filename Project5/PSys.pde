@@ -66,8 +66,8 @@ class Enviroment extends PSys {
   
   String particleName;
   
-  Enviroment(String pName) {
-    super(new PVector(width/2, 0), 0, 0.1, pName);
+  Enviroment(String pName, float interval) {
+    super(new PVector(width/2, 0), 0, interval, pName);
     particleName = pName;
   }
   

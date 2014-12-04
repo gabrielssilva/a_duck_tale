@@ -15,7 +15,7 @@ abstract class Enemy {
   void update() {
     position.add(velocity);
 
-    alive = position.x > -sourceImg.width;
+    alive = alive && position.x > -sourceImg.width;
     boundingBox.update(position.x+size*8, position.y+size*5);
   }
 
@@ -113,6 +113,7 @@ class SnowFlake extends Enemy {
   
   void handleCollision(Level level) {
     level.freezesPlayer();
+    alive = false;
   }
 }
 

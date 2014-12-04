@@ -72,7 +72,7 @@ class Duck {
     }
     
     if (speed < initSpeed) {
-      speed += 0.02;
+      speed += 0.01;
     } else {
       frozen = false;
     }

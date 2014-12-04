@@ -1,6 +1,6 @@
 final boolean DEBUG_BOUNDING_BOXES = false;
 final int FRAME_RATE = 60;
-final int NUM_OF_LEVELS = 2;
+final int NUM_OF_LEVELS = 3;
 final float DELAY_TIME = 0.8;
 
 Level levels[];
@@ -20,7 +20,8 @@ void setup() {
   levels = new Level[NUM_OF_LEVELS];
   levels[0] = new Level1(duck, FRAME_RATE);
   levels[1] = new Level2(duck, FRAME_RATE);
-  activeLevel = 1;
+  levels[2] = new Level3(duck, FRAME_RATE);
+  activeLevel = 0;
 
   currentTime = 0;
   fadeAlpha = 0;
