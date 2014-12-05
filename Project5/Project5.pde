@@ -3,6 +3,8 @@ final int FRAME_RATE = 60;
 final int NUM_OF_LEVELS = 3;
 final float DELAY_TIME = 0.8;
 
+PImage startButton, retryButton, backButton;
+
 Level levels[];
 EngineStatus status, lastValidStatus;
 FadeStatus fadeStatus;
@@ -27,6 +29,10 @@ void setup() {
   fadeAlpha = 0;
   status = EngineStatus.ON_MENU;
   fadeStatus = FadeStatus.NONE;
+  
+  startButton = loadImage("data/start_button.png");
+  retryButton = loadImage("data/play_again_button.png");
+  backButton = loadImage("data/back_button.png");
 }
 
 void draw() {
@@ -38,6 +44,8 @@ void draw() {
     runLevel();
   } else if (status == EngineStatus.ON_GAME_OVER) {
     drawGameOverScreen();
+  } else if (status == EngineStatus.ENDING) {
+    drawVictoryScreen();
   }
 
   delay();
@@ -62,40 +70,56 @@ void nextLevel() {
     levels[activeLevel].begin();
     activateFade(EngineStatus.RUNNING);
   } else {
-    status = EngineStatus.ENDING;
+    activateFade(EngineStatus.ENDING);
   }
 }
 
 void drawMenuScreen() {
-  background(0);
   cursor();
-
-  fill(255);
-  rect(0.65*width, 0.3*height, 0.3*width, 0.2*height);
-  //rect(0.65*width, 0.6*height, 0.3*width, 0.2*height);
-
-  fill(0);
-  textFont(loadFont("Helvetica.vlw"), 60);
-  textAlign(CENTER, CENTER);
-  text("Play", 0.65*width, 0.3*height, 0.3*width, 0.18*height);
+  
+  drawSky(color(#53C7BB), "level3");
+  drawGround("level1");
+  
+  PImage house = loadImage("data/locked_duck_house.png");
+  PImage board = loadImage("data/board.png");
+  
+  image(house, 150, height-house.height);
+  image(board, 0.62*width, -0.1*height);
+  image(startButton, 0.65*width, 0.75*height);
 }
 
 void drawGameOverScreen() {
   textFont(loadFont("Helvetica.vlw"), 60);
   textAlign(CENTER, CENTER);
   
-  background(0);
+  drawSky(color(#3491A7), "level3");
+  drawGround("level3");
   cursor();
   
-  fill(255);
-  rect(0.35*width, 0.7*height, 0.3*width, 0.2*height);
+  PImage deadDuck = loadImage("data/duck/dead_duck.png");
+  image(deadDuck, 150, height-deadDuck.height);
+  image(retryButton, 0.7*width, 0.6*height);
+  
   textSize(90);
-  text("Game Over", 0.3*width, 0.2*height, 0.4*width, 0.3*height);
-  
-  
   fill(0);
-  textSize(60);
-  text("Try Again", 0.35*width, 0.7*height, 0.3*width, 0.18*height);
+  text("Fried duck... :(", 0.25*width, 0.1*height, 0.5*width, 0.2*height);
+}
+
+void drawVictoryScreen() {
+  textFont(loadFont("Helvetica.vlw"), 60);
+  textAlign(CENTER, CENTER);
+  
+  drawSky(color(#7ECDDF), "level1");
+  drawGround("level1");
+  cursor();
+  
+  PImage house = loadImage("data/duck_house.png");
+  image(house, 150, height-house.height);
+  image(backButton, 0.7*width, 0.6*height);
+  
+  textSize(90);
+  fill(0);
+  text("You did it, Home sweet home", 0, 0.1*height, width, 0.2*height);
 }
 
 void mouseMoved() {
@@ -108,17 +132,24 @@ void mouseMoved() {
 
 void mouseClicked() {
   if (status == EngineStatus.ON_MENU) {
-    if (mouseX>0.65*width && mouseX<0.95*width && mouseY>0.3*height && mouseY<0.48*height) {
+    if (mouseX>0.65*width && mouseX<(0.65*width+startButton.width) 
+        && mouseY>0.75*height && mouseY<(0.75*height+startButton.height)) {
       levels[activeLevel].begin();
 
       activateFade(EngineStatus.RUNNING);
     }
   } else if (status == EngineStatus.ON_GAME_OVER) {
-    if (mouseX>0.35*width && mouseX<0.65*width && mouseY>0.7*height && mouseY<0.88*height) {
+    if (mouseX>0.7*width && mouseX<(0.7*width+retryButton.width) 
+        && mouseY>0.6*height && mouseY<(0.6*height+retryButton.height)) {
       activeLevel= 0;
       levels[activeLevel].begin();
 
       activateFade(EngineStatus.RUNNING);
+    }
+  } else if (status == EngineStatus.ENDING) {
+    if (mouseX>0.7*width && mouseX<(0.7*width+backButton.width) 
+        && mouseY>0.6*height && mouseY<(0.6*height+backButton.height)) {
+      activateFade(EngineStatus.ON_MENU);
     }
   }
 }
@@ -165,3 +196,24 @@ void activateFade(EngineStatus nextStatus) {
   currentTime = 0;
 }
 
+void drawSky(color bgColor, String level) {
+  background(bgColor);
+  PImage cloud1 = loadImage("data/"+level+"/parallax1/cloud1.png");
+  PImage cloud2 = loadImage("data/"+level+"/parallax1/cloud2.png");
+  PImage cloud3 = loadImage("data/"+level+"/parallax1/cloud3.png");
+  
+  image(cloud1, 200, 50);
+  image(cloud2, 450, 120);
+  image(cloud3, 80, 200);
+  image(cloud1, 600, 200);
+  image(cloud3, 900, 50);
+  image(cloud2, 1100, 200);
+}
+
+void drawGround(String level) {
+  PImage field1 = loadImage("data/"+level+"/parallax3/field1.png");
+  PImage field2 = loadImage("data/"+level+"/parallax3/field2.png");
+  
+  image(field1, 0, height-field1.height);
+  image(field2, field1.width, height-field2.height);
+}
